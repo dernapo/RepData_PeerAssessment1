@@ -1,34 +1,31 @@
----
-title: 'Reproducible Research: Peer Assessment 1'
-output:
-  html_document:
-    keep_md: yes
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 
 We extract the .csv file from the zip and adjust the column "date" withe a Date format:
-```{r}
-DF <- read.csv(unz("activity.zip", "activity.csv"), colClasses=c("integer", "Date", "integer"))
 
-````
+```r
+DF <- read.csv(unz("activity.zip", "activity.csv"), colClasses=c("integer", "Date", "integer"))
+```
 ## What is mean total number of steps taken per day?
 
 First we select the data we need and group it per date. Then we sum the steps for each day:
 
-````{r, message=FALSE, warning=FALSE}
+
+```r
 library(dplyr)
 stepsDay<-DF %>%
         select(steps, date) %>%
         group_by(date) %>%
         summarise(sumSteps=sum(steps))
-````
+```
 
 Now we prepae the histogram of the total number of steps taken each day:
 (we adjust the bindwith to 1.000 steps)
 
-```{r, message=FALSE, warning=FALSE}
+
+```r
 library(ggplot2)
 ggplot(data=stepsDay, aes(sumSteps)) + 
         geom_histogram(binwidth = 1000) +
@@ -36,15 +33,18 @@ ggplot(data=stepsDay, aes(sumSteps)) +
              x = "Number of steps each day", y = "Number of times in a day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
 Now we calculate the **mean** and **median** total number of steps taken per day with this code 
-```{r, message=FALSE, warning=FALSE}
+
+```r
 stepsMean   <- mean(stepsDay$sumSteps, na.rm=TRUE)
 stepsMedian <- median(stepsDay$sumSteps, na.rm=TRUE)
 ```
 
 The result:
-The **mean** is `r as.integer(stepsMean)`  
-The **median** is `r stepsMedian`    
+The **mean** is 10766  
+The **median** is 10765    
 
 ## What is the average daily activity pattern?
 
