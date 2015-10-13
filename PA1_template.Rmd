@@ -12,6 +12,9 @@ We extract the .csv file from the zip and adjust the column "date" withe a Date 
 ```{r}
 DF <- read.csv(unz("activity.zip", "activity.csv"), colClasses=c("integer", "Date", "integer"))
 
+head(DF)
+summary(DF)
+str(DF)
 ````
 ## What is mean total number of steps taken per day?
 
@@ -23,6 +26,8 @@ stepsDay<-DF %>%
         select(steps, date) %>%
         group_by(date) %>%
         summarise(sumSteps=sum(steps))
+
+head(stepsDay)
 ````
 
 Now we prepae the histogram of the total number of steps taken each day:

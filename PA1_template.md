@@ -7,6 +7,44 @@ We extract the .csv file from the zip and adjust the column "date" withe a Date 
 
 ```r
 DF <- read.csv(unz("activity.zip", "activity.csv"), colClasses=c("integer", "Date", "integer"))
+
+head(DF)
+```
+
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25
+```
+
+```r
+summary(DF)
+```
+
+```
+##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 12.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0  
+##  NA's   :2304
+```
+
+```r
+str(DF)
+```
+
+```
+## 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Date, format: "2012-10-01" "2012-10-01" ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 ## What is mean total number of steps taken per day?
 
@@ -19,6 +57,20 @@ stepsDay<-DF %>%
         select(steps, date) %>%
         group_by(date) %>%
         summarise(sumSteps=sum(steps))
+
+head(stepsDay)
+```
+
+```
+## Source: local data frame [6 x 2]
+## 
+##         date sumSteps
+## 1 2012-10-01       NA
+## 2 2012-10-02      126
+## 3 2012-10-03    11352
+## 4 2012-10-04    12116
+## 5 2012-10-05    13294
+## 6 2012-10-06    15420
 ```
 
 Now we prepae the histogram of the total number of steps taken each day:

@@ -67,7 +67,30 @@ img {
 <div id="loading-and-preprocessing-the-data" class="section level2">
 <h2>Loading and preprocessing the data</h2>
 <p>We extract the .csv file from the zip and adjust the column “date” withe a Date format:</p>
-<pre class="r"><code>DF &lt;- read.csv(unz(&quot;activity.zip&quot;, &quot;activity.csv&quot;), colClasses=c(&quot;integer&quot;, &quot;Date&quot;, &quot;integer&quot;))</code></pre>
+<pre class="r"><code>DF &lt;- read.csv(unz(&quot;activity.zip&quot;, &quot;activity.csv&quot;), colClasses=c(&quot;integer&quot;, &quot;Date&quot;, &quot;integer&quot;))
+
+head(DF)</code></pre>
+<pre><code>##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
+## 6    NA 2012-10-01       25</code></pre>
+<pre class="r"><code>summary(DF)</code></pre>
+<pre><code>##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 12.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0  
+##  NA's   :2304</code></pre>
+<pre class="r"><code>str(DF)</code></pre>
+<pre><code>## 'data.frame':    17568 obs. of  3 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Date, format: &quot;2012-10-01&quot; &quot;2012-10-01&quot; ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...</code></pre>
 </div>
 <div id="what-is-mean-total-number-of-steps-taken-per-day" class="section level2">
 <h2>What is mean total number of steps taken per day?</h2>
@@ -76,7 +99,18 @@ img {
 stepsDay&lt;-DF %&gt;%
         select(steps, date) %&gt;%
         group_by(date) %&gt;%
-        summarise(sumSteps=sum(steps))</code></pre>
+        summarise(sumSteps=sum(steps))
+
+head(stepsDay)</code></pre>
+<pre><code>## Source: local data frame [6 x 2]
+## 
+##         date sumSteps
+## 1 2012-10-01       NA
+## 2 2012-10-02      126
+## 3 2012-10-03    11352
+## 4 2012-10-04    12116
+## 5 2012-10-05    13294
+## 6 2012-10-06    15420</code></pre>
 <p>Now we prepae the histogram of the total number of steps taken each day: (we adjust the bindwith to 1.000 steps)</p>
 <pre class="r"><code>library(ggplot2)
 ggplot(data=stepsDay, aes(sumSteps)) + 
