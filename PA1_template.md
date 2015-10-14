@@ -73,7 +73,7 @@ head(stepsDay)
 ## 6 2012-10-06    15420
 ```
 
-Now we prepae the histogram of the total number of steps taken each day:
+Now we prepare the histogram of the total number of steps taken each day:
 (we adjust the bindwith to 1.000 steps)
 
 
@@ -90,19 +90,59 @@ ggplot(data=stepsDay, aes(sumSteps)) +
 Now we calculate the **mean** and **median** total number of steps taken per day with this code 
 
 ```r
-stepsMean   <- mean(stepsDay$sumSteps, na.rm=TRUE)
-stepsMedian <- median(stepsDay$sumSteps, na.rm=TRUE)
+mean(stepsDay$sumSteps, na.rm=TRUE)
 ```
 
-The result:
-The **mean** is 10766  
-The **median** is 10765    
+```
+## [1] 10766.19
+```
+
+```r
+median(stepsDay$sumSteps, na.rm=TRUE)
+```
+
+```
+## [1] 10765
+```
 
 ## What is the average daily activity pattern?
 
-1. Make a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+Now we make a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis):
 
-2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+
+```r
+#To plot average daily activity
+DF %>%  group_by(interval) %>% 
+        summarize(mean=mean(steps, na.rm=TRUE)) %>% 
+        plot(., type="l", main="Average daily activity", 
+             xlab="5-minute interval", ylab="Average steps across all days")
+
+#To display the interval with the max. number of steps in average on the plot
+max<-DF %>%  group_by(interval) %>% 
+        summarize(mean=mean(steps, na.rm=TRUE)) %>% 
+        slice(which.max(mean)) %>% select(interval)
+
+abline(v=max, col="purple")
+axis(1, at=max, labels = max, pos=0, col.axis="purple")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+
+In purple we see the interval with the maximum number of steps. And here the exact  
+interval and his mean:
+
+```r
+DF %>%  group_by(interval) %>% 
+        summarize(mean=mean(steps, na.rm=TRUE)) %>% 
+        slice(which.max(mean)) #slice selects rows by position
+```
+
+```
+## Source: local data frame [1 x 2]
+## 
+##   interval     mean
+## 1      835 206.1698
+```
 
 
 
@@ -111,13 +151,107 @@ Note that there are a number of days/intervals where there are missing
 values (coded as `NA`). The presence of missing days may introduce
 bias into some calculations or summaries of the data.
 
-1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with `NA`s)
 
-2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+```r
+summary(DF)
+```
+
+```
+##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 12.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0  
+##  NA's   :2304
+```
+1. There are **2304**  missing values in the dataset
+
+
+2. We will fill the NA's with the mean for that 5-minute interval, etc.
 
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-4. Make a histogram of the total number of steps taken each day and Calculate and report the **mean** and **median** total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+```r
+# Split main DF in two DF, one with NAs and one without NAs
+DF_noNA <-DF %>% filter(complete.cases(.))
+DF_NA <-DF %>% filter(!complete.cases(.))
+
+# Create DF with intervals and their step means
+meanSteps <- DF %>% group_by(interval) %>% summarize(mean=mean(steps, na.rm=TRUE))
+
+# Merge means with DF with NAs by "interval"
+DF_NA <- merge(meanSteps, DF_NA, by = "interval", all.y=TRUE)
+DF_NA <- DF_NA[,c(2,4,1)] #remove column not needed and reorder columns
+colnames(DF_NA) <-c("steps", "date", "interval") #rename columns
+
+# Merge DF with no NA's and with the DF with means
+DF_new <- rbind(DF_noNA, DF_NA)
+```
+
+
+Here the histogram of the new DF
+
+
+```r
+library(dplyr)
+library(ggplot2)
+stepsDay_new<- DF_new %>%
+        select(steps, date) %>%
+        group_by(date) %>%
+        summarise(sumSteps=sum(steps)) 
+
+
+ggplot(data=stepsDay_new, aes(sumSteps)) + 
+        geom_histogram(binwidth = 1000) +
+        labs(title="Steps taken each day (new DF)", 
+             x = "Number of steps each day", y = "Number of times in a day")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
+  
+Here the **mean** and **median** of the new DF 
+
+
+```r
+mean(stepsDay_new$sumSteps, na.rm=TRUE)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
+median(stepsDay_new$sumSteps, na.rm=TRUE)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
+summary(stepsDay$sumSteps) # before
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##      41    8841   10760   10770   13290   21190       8
+```
+
+```r
+summary(stepsDay_new$sumSteps) # now
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    9819   10770   10770   12810   21190
+```
+
+Now the estimates have changed as follows:  
+-  We have now more observations as shown in the histogram (we added data to the NAs)  
+-  Mean stays the same (the strategy was to use the mean to fulfil the missing values)  
+-  Now the median is the same as the mean  
 
 
 
