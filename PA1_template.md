@@ -256,9 +256,43 @@ Now the estimates have changed as follows:
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-For this part the `weekdays()` function may be of some help here. Use
-the dataset with the filled-in missing values for this part.
+For this part we are going to use the data set with the filled-in missing values.
 
-1. Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
+We will add a new column with the information, Weekday or Weekend.
 
-1. Make a panel plot containing a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). The plot should look something like the following, which was created using **simulated data**:
+
+```r
+library(dplyr)
+
+DF_new$weekday <- as.factor(
+        ifelse(weekdays(DF_new$date) %in% c("Samstag","Sonntag"), "Weekend", "Weekday")
+        ) 
+
+str(DF_new)
+```
+
+```
+## 'data.frame':	17568 obs. of  4 variables:
+##  $ steps   : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ date    : Date, format: "2012-10-02" "2012-10-02" ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+##  $ weekday : Factor w/ 2 levels "Weekday","Weekend": 1 1 1 1 1 1 1 1 1 1 ...
+```
+
+Now we make a plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+
+
+```r
+library(dplyr)
+library(lattice)
+DF_new_weekday <- DF_new %>% 
+        group_by(interval, weekday) %>%
+        summarise(steps = mean( steps, na.rm=TRUE ))
+
+xyplot(steps~interval | weekday, data = DF_new_weekday,
+       type="l", ylab="Number of steps", 
+       xlab="Interval",
+       layout=c(1,2))
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png) 
